@@ -377,6 +377,88 @@ class GenSynth
     }
 
     /**
+     * Easy way to highlight stuff. Behaves just like highlight_string
+     *
+     * @param  string $source
+     * @param  string $language
+     * @param  bool   $return [Default: false] *Can be skipped*
+     * @param  int    $opts   [Default: 0]
+     *
+     * @return bool|string
+     */
+    public static function highlight_string($source, $language, $return = false, $opts = 0)
+    {
+        if (is_int($return)) {
+            $opts = $return;
+            $return = false;
+        }
+
+        $gs = new static($source, $language, $opts);
+        $s = $gs->parseCode();
+
+        if ($gs->error()) {
+            return false;
+        }
+
+        if ($return) {
+            return '<code>' . $s . '</code>';
+        }
+        echo '<code>' . $s . '</code>';
+
+        return true;
+    }
+
+    /**
+     * Easy way to highlight stuff. Behaves just like highlight_file
+     *
+     * @param  string $filename the full filepath of the file to highlight
+     * @param  string $language language to use
+     *                          (will try to determine from extension if not provided)
+     *                          [Default: ''] *Can be skipped*
+     * @param  bool   $return   [Default: false] *Can be skipped*
+     * @param  int    $opts     [Default: 0]
+     *
+     * @return bool|string
+     */
+    public static function highlight_file($filename, $language = '', $return = false, $opts = 0)
+    {
+        if (is_bool($language)) {
+            !is_int($return) ?: $opts = $return;
+            $return = $language;
+            $language = '';
+        }
+        elseif (is_int($language)) {
+            $opts = $language;
+            $language = '';
+        }
+
+        if (file_exists($filename) && is_readable($filename)) {
+            $gs = new static($filename, '', $opts);
+
+            if ($language == '') {
+                $ext = pathinfo($filename, PATHINFO_EXTENSION);
+                $language = $gs->get_language_name_from_extension($ext);
+            }
+
+            $gs->setLanguage($language);
+            $s = $gs->parseCode();
+
+            if ($gs->error()) {
+                return false;
+            }
+
+            if ($return) {
+                return '<code>' . $s . '</code>';
+            }
+            echo '<code>' . $s . '</code>';
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Sets the language for this object
      *
      * @param string $language    The name of the language to use
@@ -4398,92 +4480,5 @@ class GenSynth
                . str_replace("\n", "|>\n<|!REG3XP" . $this->_hmr_key . '!>', $replace)
                . '|>'
                . $after;
-    }
-}
-
-
-if (!function_exists('gs_highlight_string')) {
-    /**
-     * Easy way to highlight stuff. Behaves just like highlight_string
-     *
-     * @param  string $source
-     * @param  string $language
-     * @param  bool   $return [Default: false] *Can be skipped*
-     * @param  int    $opts   [Default: 0]
-     *
-     * @return bool|string
-     */
-    function gs_highlight_string($source, $language, $return = false, $opts = 0)
-    {
-        if (is_int($return)) {
-            $opts = $return;
-            $return = false;
-        }
-
-        $gs = new GenSynth($source, $language, $opts);
-        $s = $gs->parseCode();
-
-        if ($gs->error()) {
-            return false;
-        }
-
-        if ($return) {
-            return '<code>' . $s . '</code>';
-        }
-        echo '<code>' . $s . '</code>';
-
-        return true;
-    }
-}
-
-if (!function_exists('gs_highlight_file')) {
-    /**
-     * Easy way to highlight stuff. Behaves just like highlight_file
-     *
-     * @param  string $filename the full filepath of the file to highlight
-     * @param  string $language language to use
-     *                          (will try to determine from extension if not provided)
-     *                          [Default: ''] *Can be skipped*
-     * @param  bool   $return   [Default: false] *Can be skipped*
-     * @param  int    $opts     [Default: 0]
-     *
-     * @return bool|string
-     */
-    function gs_highlight_file($filename, $language = '', $return = false, $opts = 0)
-    {
-        if (is_bool($language)) {
-            !is_int($return) ?: $opts = $return;
-            $return = $language;
-            $language = '';
-        }
-        elseif (is_int($language)) {
-            $opts = $language;
-            $language = '';
-        }
-
-        if (file_exists($filename) && is_readable($filename)) {
-            $gs = new GenSynth($filename, '', $opts);
-
-            if ($language == '') {
-                $ext = pathinfo($filename, PATHINFO_EXTENSION);
-                $language = $gs->get_language_name_from_extension($ext);
-            }
-
-            $gs->setLanguage($language);
-            $s = $gs->parseCode();
-
-            if ($gs->error()) {
-                return false;
-            }
-
-            if ($return) {
-                return '<code>' . $s . '</code>';
-            }
-            echo '<code>' . $s . '</code>';
-
-            return true;
-        }
-
-        return false;
     }
 }
