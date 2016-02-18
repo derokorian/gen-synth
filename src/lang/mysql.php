@@ -43,6 +43,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  ************************************************************************************/
+use Dero\GenSynth\GenSynth;
 
 $language_data = [
     'LANG_NAME'              => 'MySQL',
